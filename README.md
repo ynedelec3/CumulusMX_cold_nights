@@ -1,5 +1,5 @@
 # CumulusMX_cold_nights
- Python code for creation of graphs with cold nights temperatures from CumulusMX logs
+ Python code for creation of graphs with cold nights temperatures read in CumulusMX logs
  
  Python files are in src
  
