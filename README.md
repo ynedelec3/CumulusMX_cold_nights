@@ -15,4 +15,7 @@
  
  Suivi_temp_class.py colors are set according to night class.
 
+Example of graphs uploaded by Cumulus fpt processor :
+http://meteo-belin-beliet-33.fr/station/nuits.htm
+
 
