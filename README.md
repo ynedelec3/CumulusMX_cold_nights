@@ -1,7 +1,5 @@
 # CumulusMX_cold_nights
- Python code for creation of graphs with cold nights temperatures read in CumulusMX logs
- 
- Python files are in src
+ Python code for creation of graphs with cold nights temperatures read in CumulusMX logs.
  
  Suivi_temp creates and saves graphs periodically during a fixed-length cycle once started. Temperature and cumulated negative temperatures are plotted (2 plots, updated) between 6 pm and 10 am.
  
@@ -15,4 +13,9 @@
  
  Suivi_temp_class.py colors are set according to night class.
 
+ Example of graphs uploaded by Cumulus fpt processor :
+ http://meteo-belin-beliet-33.fr/station/nuits.htm
 
+ Python files are in src.
+
+ File locations (logs and png graphs) should be changed according Cumulus installation and setup.
