@@ -25,15 +25,16 @@ df_stop = pd.read_csv("C:\\CumulusMX\\web\\realtimewikiT.txttmp", sep = ';', ind
 if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
     sys.exit()
 
-seuilh = 1.
+seuilh = 10.
 seuilb = -7.
 
-df_nov = pd.read_csv('C:\\CumulusMX\\data\\nov20log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
-df_dec = pd.read_csv('C:\\CumulusMX\\data\\déc20log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
-df_jan = pd.read_csv('C:\\CumulusMX\\data\\janv21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
-df_fev = pd.read_csv('C:\\CumulusMX\\data\\févr21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
-df_mar = pd.read_csv('C:\\CumulusMX\\data\\mars21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
-df_avr = pd.read_csv('C:\\CumulusMX\\data\\avr21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+df_oct = pd.read_csv('C:\\CumulusMX\\data\\oct21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+#df_nov = pd.read_csv('C:\\CumulusMX\\data\\nov20log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+#df_dec = pd.read_csv('C:\\CumulusMX\\data\\déc20log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+#df_jan = pd.read_csv('C:\\CumulusMX\\data\\janv21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+#df_fev = pd.read_csv('C:\\CumulusMX\\data\\févr21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+#df_mar = pd.read_csv('C:\\CumulusMX\\data\\mars21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+#df_avr = pd.read_csv('C:\\CumulusMX\\data\\avr21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 
 
 plt.ion()
@@ -41,8 +42,11 @@ plt.ion()
 sns.set(rc={'figure.figsize':(20., 12.)})
 sns.set_style("darkgrid", {"grid.color": "0.2", "axes.facecolor": ".9", "axes.facecolor": "0.", "figure.facecolor": "white"})
 
-df_act = pd.read_csv("C:\\CumulusMX\\data\\mai21log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
-df = pd.concat([df_nov, df_dec,df_jan, df_fev, df_mar, df_avr, df_act])
+pd.set_option('mode.chained_assignment', None)
+
+df_act = pd.read_csv("C:\\CumulusMX\\data\\oct21log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+#df = pd.concat([df_nov, df_dec,df_jan, df_fev, df_mar, df_avr, df_act])
+df = df_act
 df.drop(np.arange(3, 28), axis = 1, inplace = True)
 df['t'] = df[0] + ' ' + df[1]
 df['t'] = df['t'].apply(lambda x : dt.datetime.strptime(x, '%d/%m/%y %H:%M') - dt.timedelta(hours=18, minutes=0, seconds=0))
@@ -97,8 +101,9 @@ time.sleep(5.)
 for i in range(330) :
     time.sleep(180)
     plt.close()
-    df_act = pd.read_csv("C:\\CumulusMX\\data\\mai21log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
-    df = pd.concat([df_nov, df_dec,df_jan, df_fev, df_mar, df_avr, df_act])
+    df_act = pd.read_csv("C:\\CumulusMX\\data\\oct21log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+    #df = pd.concat([df_nov, df_dec,df_jan, df_fev, df_mar, df_avr, df_act])
+    df = df_act
     #print(df.size)
     df.drop(np.arange(3, 28), axis = 1, inplace = True)
     df['t'] = df[0] + ' ' + df[1]
