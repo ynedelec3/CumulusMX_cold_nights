@@ -25,7 +25,7 @@ df_stop = pd.read_csv("C:\\CumulusMX\\web\\realtimewikiT.txttmp", sep = ';', ind
 if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
     sys.exit()
 
-seuilh = 10.
+seuilh = 7.
 seuilb = -7.
 
 df_oct = pd.read_csv('C:\\CumulusMX\\data\\oct21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
