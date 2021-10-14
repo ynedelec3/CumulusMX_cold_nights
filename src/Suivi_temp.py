@@ -20,7 +20,7 @@ register_matplotlib_converters()
 
 import seaborn as sns
 
-autostop = 15.
+autostop = 20.
 df_stop = pd.read_csv("C:\\CumulusMX\\web\\realtimewikiT.txttmp", sep = ';', index_col=False)
 if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
     sys.exit()
