@@ -25,8 +25,15 @@ df_stop = pd.read_csv("C:\\CumulusMX\\web\\realtimewikiT.txttmp", sep = ';', ind
 if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
     sys.exit()
 
-seuilh = 3.
+seuilh = 0.5
 seuilb = -7.
+looprange = 330
+sleep1 = 180
+sleep2 = 5
+
+nclasses = 5
+
+palette = 'Set1'
 
 df_oct = pd.read_csv('C:\\CumulusMX\\data\\oct21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_oct = pd.read_csv('C:\\CumulusMX\\data\\oct20log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
@@ -39,6 +46,13 @@ df_dec = pd.read_csv('C:\\CumulusMX\\data\\déc21log.txt', sep = ';', header=Non
 #df_mar = pd.read_csv('C:\\CumulusMX\\data\\mars21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_avr = pd.read_csv('C:\\CumulusMX\\data\\avr21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 
+mmc = []
+mmt = []
+for i in range(nclasses) :
+    dfmmc = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmc' + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
+    mmc.append(dfmmc)
+    dfmmt = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
+    mmt.append(dfmmt)
 
 plt.ion()
 
@@ -61,11 +75,19 @@ df['temp'] = df['temp'].apply(lambda x : float(x.replace(',', '.')))
 df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 10:00', '%d/%m/%Y %H:%M'))]
 df['cumul'] = [min(x, 0) for x in df.temp]
 df['cumul'] = df['cumul'].cumsum()
-for name, group in df.groupby('date'): 
+
+for name, group in df.groupby('date'):
     df.loc[df['date'] == name, ['cumul']] = df.loc[df['date'] == name, ['cumul']] - float(group.head(1).cumul)
 nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y"))
 
-g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = 'viridis', estimator=None)
+ndate = nuits.groupby(by=['date']).ngroups - 1
+chron_palette = sns.blend_palette(["indigo", "grass", "yellow"], n_colors = ndate, input="xkcd")
+chron_palette.append((1., 0.5, 0.05))
+
+fig, axs = plt.subplots()
+g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
+for i in range(nclasses) :
+    axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
 mng = plt.get_current_fig_manager()
 mng.canvas.set_window_title('Courbe températures nocturnes')
 mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -79,11 +101,14 @@ plt.axhline(0, c='white', lw=1)
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.pause(0.001)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
-time.sleep(5.)
+time.sleep(sleep2)
 #plt.clf()
 plt.close()
 
-g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = 'viridis', estimator=None)
+fig, axs = plt.subplots()
+g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
+for i in range(nclasses) :
+    axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
 mng = plt.get_current_fig_manager()
 mng.canvas.set_window_title('Courbe températures nocturnes')
 mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -98,11 +123,11 @@ plt.axhline(-2, c='white', lw=1, ls = '--')
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.pause(0.001)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
-time.sleep(5.)
+time.sleep(sleep2)
 #plt.clf()
 
-for i in range(330) :
-    time.sleep(180)
+for i in range(looprange) :
+    time.sleep(sleep1)
     plt.close()
     df_act = pd.read_csv("C:\\CumulusMX\\data\\déc21log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
     #df = pd.concat([df_nov, df_dec,df_jan, df_fev, df_mar, df_avr, df_act])
@@ -123,7 +148,10 @@ for i in range(330) :
         df.loc[df['date'] == name, ['cumul']] = df.loc[df['date'] == name, ['cumul']] - float(group.head(1).cumul)
     nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y"))
 
-    g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = 'viridis', estimator=None)
+    fig, axs = plt.subplots()
+    g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
+    for i in range(nclasses) :
+        axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
     mng = plt.get_current_fig_manager()
     mng.canvas.set_window_title('Courbe températures nocturnes')
     mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -137,11 +165,14 @@ for i in range(330) :
     plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
     plt.pause(0.001)
     plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
-    time.sleep(5.)
+    time.sleep(sleep2)
     #plt.clf()
     plt.close()
 
-    g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = 'viridis', estimator=None)
+    fig, axs = plt.subplots()
+    g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
+    for i in range(nclasses) :
+        axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
     mng = plt.get_current_fig_manager()
     mng.canvas.set_window_title('Courbe températures nocturnes')
     mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
