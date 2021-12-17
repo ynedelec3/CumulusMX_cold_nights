@@ -33,7 +33,8 @@ sleep2 = 5
 
 nclasses = 5
 
-palette = 'Set1'
+#palette = 'Set1'
+palette = "coolwarm"
 
 df_oct = pd.read_csv('C:\\CumulusMX\\data\\oct21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_oct = pd.read_csv('C:\\CumulusMX\\data\\oct20log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
@@ -47,12 +48,17 @@ df_dec = pd.read_csv('C:\\CumulusMX\\data\\déc21log.txt', sep = ';', header=Non
 #df_avr = pd.read_csv('C:\\CumulusMX\\data\\avr21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 
 mmc = []
-mmt = []
+min_classe = []
+#mmt = []
 for i in range(nclasses) :
     dfmmc = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmc' + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
+    min_classe.append(dfmmc['cmin'].min())
     mmc.append(dfmmc)
-    dfmmt = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
-    mmt.append(dfmmt)
+    #dfmmt = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
+    #mmt.append(dfmmt)
+rang_classe = [0] * len(min_classe)
+for i, x in enumerate(sorted(range(len(min_classe)), key=lambda y: min_classe[y])):
+    rang_classe[x] = i
 
 plt.ion()
 
@@ -87,7 +93,7 @@ chron_palette.append((1., 0.5, 0.05))
 fig, axs = plt.subplots()
 g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
 for i in range(nclasses) :
-    axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
+    axs.fill_between(mmc[rang_classe[i]]['t'].to_list(), mmc[rang_classe[i]]['cmin'].to_list(), mmc[rang_classe[i]]['cmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
 mng = plt.get_current_fig_manager()
 mng.canvas.set_window_title('Courbe températures nocturnes')
 mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -108,7 +114,7 @@ plt.close()
 fig, axs = plt.subplots()
 g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
 for i in range(nclasses) :
-    axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
+    axs.fill_between(mmc[rang_classe[i]]['t'].to_list(), mmc[rang_classe[i]]['tmin'].to_list(), mmc[rang_classe[i]]['tmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
 mng = plt.get_current_fig_manager()
 mng.canvas.set_window_title('Courbe températures nocturnes')
 mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -151,7 +157,7 @@ for i in range(looprange) :
     fig, axs = plt.subplots()
     g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
     for i in range(nclasses) :
-        axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
+        axs.fill_between(mmc[rang_classe[i]]['t'].to_list(), mmc[rang_classe[i]]['cmin'].to_list(), mmc[rang_classe[i]]['cmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
     mng = plt.get_current_fig_manager()
     mng.canvas.set_window_title('Courbe températures nocturnes')
     mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -172,7 +178,7 @@ for i in range(looprange) :
     fig, axs = plt.subplots()
     g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
     for i in range(nclasses) :
-        axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
+        axs.fill_between(mmc[rang_classe[i]]['t'].to_list(), mmc[rang_classe[i]]['tmin'].to_list(), mmc[rang_classe[i]]['tmax'].to_list(), color = sns.color_palette(palette, nclasses)[i], alpha=0.2)
     mng = plt.get_current_fig_manager()
     mng.canvas.set_window_title('Courbe températures nocturnes')
     mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
