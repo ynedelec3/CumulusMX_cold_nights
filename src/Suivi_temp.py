@@ -86,8 +86,9 @@ for name, group in df.groupby('date'):
     df.loc[df['date'] == name, ['cumul']] = df.loc[df['date'] == name, ['cumul']] - float(group.head(1).cumul)
 nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y"))
 
-ndate = nuits.groupby(by=['date']).ngroups - 1
-chron_palette = sns.blend_palette(["indigo", "grass", "yellow"], n_colors = ndate, input="xkcd")
+ndate = nuits.groupby(by=['date']).ngroups
+#chron_palette = sns.blend_palette(["indigo", "grass", "yellow"], n_colors = ndate, input="xkcd")
+chron_palette = sns.mpl_palette("viridis", n_colors = ndate - 1)
 chron_palette.append((1., 0.5, 0.05))
 
 fig, axs = plt.subplots()
