@@ -32,7 +32,7 @@ df_stop = pd.read_csv('C:\\CumulusMX\\web\\realtimewikiT.txttmp', sep = ';', ind
 if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
     sys.exit()
 
-seuilh = 3.
+seuilh = 1.
 seuilb = -7.
 nclasses = 5
 #looprange = 330
