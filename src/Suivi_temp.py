@@ -42,6 +42,7 @@ df_nov = pd.read_csv('C:\\CumulusMX\\data\\nov21log.txt', sep = ';', header=None
 #df_nov = pd.read_csv('C:\\CumulusMX\\data\\nov20log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 df_dec = pd.read_csv('C:\\CumulusMX\\data\\déc21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_dec = pd.read_csv('C:\\CumulusMX\\data\\déc20log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+df_jan = pd.read_csv('C:\\CumulusMX\\data\\janv22log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_jan = pd.read_csv('C:\\CumulusMX\\data\\janv21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_fev = pd.read_csv('C:\\CumulusMX\\data\\févr21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_mar = pd.read_csv('C:\\CumulusMX\\data\\mars21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
@@ -68,8 +69,8 @@ sns.set_style("darkgrid", {"grid.color": "0.2", "axes.facecolor": ".9", "axes.fa
 
 pd.set_option('mode.chained_assignment', None)
 
-df_act = pd.read_csv("C:\\CumulusMX\\data\\déc21log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
-df = pd.concat([df_oct, df_nov, df_act], ignore_index=True)
+df_act = pd.read_csv("C:\\CumulusMX\\data\\janv22log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+df = pd.concat([df_oct, df_nov, df_dec, df_act], ignore_index=True)
 #df = pd.concat([df_nov, df_dec, df_jan, df_fev, df_mar, df_avr, df_act])
 df.drop(np.arange(3, 28), axis = 1, inplace = True)
 df['t'] = df[0] + ' ' + df[1]
@@ -139,9 +140,9 @@ time.sleep(sleep2)
 for i in range(looprange) :
     time.sleep(sleep1)
     plt.close()
-    df_act = pd.read_csv("C:\\CumulusMX\\data\\déc21log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+    df_act = pd.read_csv("C:\\CumulusMX\\data\\janv22log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
     #df = pd.concat([df_nov, df_dec,df_jan, df_fev, df_mar, df_avr, df_act])
-    df = pd.concat([df_oct, df_nov, df_act], ignore_index=True)
+    df = pd.concat([df_oct, df_nov, df_dec, df_act], ignore_index=True)
     #print(df.size)
     df.drop(np.arange(3, 28), axis = 1, inplace = True)
     df['t'] = df[0] + ' ' + df[1]
