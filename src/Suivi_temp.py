@@ -6,6 +6,7 @@
 # Deux grandeurs sont tracees : temperature exterieure et cumul des temperatures negatives
 
 import sys
+import gc
 
 import pandas as pd
 import numpy as np
@@ -28,8 +29,11 @@ if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
 seuilh = 0.5
 seuilb = -7.
 looprange = 330
-sleep1 = 180
-sleep2 = 5
+sleep1 = 180.
+#sleep1 = 5.
+sleep2 = 2.
+plt_pause1 = 0.001
+plt_pause2 = 0.5
 
 nclasses = 5
 
@@ -109,11 +113,13 @@ plt.legend(bbox_to_anchor=(0.05, 0.7), loc=2, edgecolor = None, facecolor = 'bla
 plt.axhline(0, c='white', lw=1)
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
-plt.pause(0.001)
+plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
+plt.pause(plt_pause2)
+plt.close('all')
 time.sleep(sleep2)
-#plt.clf()
-plt.close()
+gc.collect()
+
 
 fig, axs = plt.subplots()
 g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
@@ -132,14 +138,15 @@ plt.axhline(0, c='white', lw=1)
 plt.axhline(-2, c='white', lw=1, ls = '--')
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
-plt.pause(0.001)
+plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
+plt.pause(plt_pause2)
+plt.close('all')
 time.sleep(sleep2)
-#plt.clf()
+gc.collect()
 
 for i in range(looprange) :
     time.sleep(sleep1)
-    plt.close()
     df_act = pd.read_csv("C:\\CumulusMX\\data\\janv22log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
     #df = pd.concat([df_nov, df_dec,df_jan, df_fev, df_mar, df_avr, df_act])
     df = pd.concat([df_oct, df_nov, df_dec, df_act], ignore_index=True)
@@ -177,9 +184,10 @@ for i in range(looprange) :
     plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
     plt.pause(0.001)
     plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
+    plt.pause(plt_pause2)
+    plt.close('all')
     time.sleep(sleep2)
-    #plt.clf()
-    plt.close()
+    gc.collect()
 
     fig, axs = plt.subplots()
     g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
@@ -200,5 +208,7 @@ for i in range(looprange) :
     plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
     plt.pause(0.001)
     plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
-    #plt.clf()
-    plt.close()
+    plt.pause(plt_pause2)
+    plt.close('all')
+    time.sleep(sleep2)
+    gc.collect()
