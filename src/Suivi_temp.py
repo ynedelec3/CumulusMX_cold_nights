@@ -33,7 +33,6 @@ sleep1 = 180.
 #sleep1 = 5.
 sleep2 = 2.
 plt_pause1 = 0.001
-plt_pause2 = 0.5
 
 nclasses = 5
 
@@ -93,12 +92,11 @@ for name, group in df.groupby('date'):
 nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y"))
 
 ndate = nuits.groupby(by=['date']).ngroups
-#chron_palette = sns.blend_palette(["indigo", "grass", "yellow"], n_colors = ndate, input="xkcd")
 chron_palette = sns.mpl_palette("viridis", n_colors = ndate - 1)
 chron_palette.append((1., 0.5, 0.05))
 
-fig, axs = plt.subplots()
-g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
+g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
+axs = g.axes
 for i in range(nclasses) :
     axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
 mng = plt.get_current_fig_manager()
@@ -108,21 +106,18 @@ mng.window.state('iconic')
 xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
 g.set_xticks(xlabels)
 g.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
-#plt.legend(bbox_to_anchor=(0.1, 0.8), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', title = 'init')
 plt.legend(bbox_to_anchor=(0.05, 0.7), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 2)
 plt.axhline(0, c='white', lw=1)
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
 plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
-plt.pause(plt_pause2)
-plt.close('all')
-time.sleep(sleep2)
+plt.clf()
+plt.cla()
 gc.collect()
 
-
-fig, axs = plt.subplots()
-g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
+g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
+axs = g.axes
 for i in range(nclasses) :
     axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
 mng = plt.get_current_fig_manager()
@@ -132,7 +127,6 @@ mng.window.state('iconic')
 xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
 g.set_xticks(xlabels)
 g.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
-#plt.legend(bbox_to_anchor=(0.694, 1.), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', title = 'init')
 plt.legend(bbox_to_anchor=(0.394, 1.), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 4)
 plt.axhline(0, c='white', lw=1)
 plt.axhline(-2, c='white', lw=1, ls = '--')
@@ -140,9 +134,8 @@ plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
 plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
-plt.pause(plt_pause2)
-plt.close('all')
-time.sleep(sleep2)
+plt.clf()
+plt.cla()
 gc.collect()
 
 for i in range(looprange) :
@@ -150,7 +143,6 @@ for i in range(looprange) :
     df_act = pd.read_csv("C:\\CumulusMX\\data\\janv22log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
     #df = pd.concat([df_nov, df_dec,df_jan, df_fev, df_mar, df_avr, df_act])
     df = pd.concat([df_oct, df_nov, df_dec, df_act], ignore_index=True)
-    #print(df.size)
     df.drop(np.arange(3, 28), axis = 1, inplace = True)
     df['t'] = df[0] + ' ' + df[1]
     df['t'] = df['t'].apply(lambda x : dt.datetime.strptime(x, '%d/%m/%y %H:%M') - dt.timedelta(hours=18, minutes=0, seconds=0))
@@ -166,8 +158,8 @@ for i in range(looprange) :
         df.loc[df['date'] == name, ['cumul']] = df.loc[df['date'] == name, ['cumul']] - float(group.head(1).cumul)
     nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y"))
 
-    fig, axs = plt.subplots()
-    g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
+    g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
+    axs = g.axes
     for i in range(nclasses) :
         axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
     mng = plt.get_current_fig_manager()
@@ -177,20 +169,18 @@ for i in range(looprange) :
     xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
     g.set_xticks(xlabels)
     g.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
-    #plt.legend(bbox_to_anchor=(0.1, 0.8), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', title = str(i))
     plt.legend(bbox_to_anchor=(0.05, 0.7), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 2)
     plt.axhline(0, c='white', lw=1)
     plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
     plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
     plt.pause(0.001)
     plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
-    plt.pause(plt_pause2)
-    plt.close('all')
-    time.sleep(sleep2)
+    plt.clf()
+    plt.cla()
     gc.collect()
 
-    fig, axs = plt.subplots()
-    g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None, ax = axs)
+    g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
+    axs = g.axes
     for i in range(nclasses) :
         axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
     mng = plt.get_current_fig_manager()
@@ -200,7 +190,6 @@ for i in range(looprange) :
     xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
     g.set_xticks(xlabels)
     g.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
-    #plt.legend(bbox_to_anchor=(0.694, 1.), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', title = str(i))
     plt.legend(bbox_to_anchor=(0.394, 1.), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 4)
     plt.axhline(0, c='white', lw=1)
     plt.axhline(-2, c='white', lw=1, ls = '--')
@@ -208,7 +197,7 @@ for i in range(looprange) :
     plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
     plt.pause(0.001)
     plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
-    plt.pause(plt_pause2)
-    plt.close('all')
-    time.sleep(sleep2)
+    plt.clf()
+    plt.cla()
     gc.collect()
+
