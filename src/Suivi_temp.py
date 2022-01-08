@@ -2,6 +2,7 @@
 # coding: utf-8
 
 # Creation de graphes colores chronologiquement
+# Superposition des classes de temperatures de l'an passe, classement par rapport aux cumuls
 # Les graphes sont enregistres pour etre transferes sur une page web
 # Deux grandeurs sont tracees : temperature exterieure et cumul des temperatures negatives
 
@@ -28,7 +29,12 @@ if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
 
 seuilh = 0.5
 seuilb = -7.
+
+pos_heure = 20.
+pos_heure_c = 35.
+
 looprange = 330
+
 sleep1 = 180.
 #sleep1 = 5.
 sleep2 = 2.
@@ -63,11 +69,9 @@ for i in range(nclasses) :
 rang_classe = [0] * len(min_classe)
 for i, x in enumerate(sorted(range(len(min_classe)), key=lambda y: min_classe[y])):
     rang_classe[x] = i
-#print(rang_classe)
-
-plt.ion()
 
 sns.set(rc={'figure.figsize':(20., 12.)})
+#sns.set(rc={'figure.figsize':(10., 6.)})
 sns.set_style("darkgrid", {"grid.color": "0.2", "axes.facecolor": ".9", "axes.facecolor": "0.", "figure.facecolor": "white"})
 
 pd.set_option('mode.chained_assignment', None)
@@ -96,9 +100,8 @@ chron_palette = sns.mpl_palette("viridis", n_colors = ndate - 1)
 chron_palette.append((1., 0.5, 0.05))
 
 g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-axs = g.axes
 for i in range(nclasses) :
-    axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
+    g.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
 mng = plt.get_current_fig_manager()
 mng.set_window_title('Courbe températures nocturnes')
 mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -110,6 +113,7 @@ plt.legend(bbox_to_anchor=(0.05, 0.7), loc=2, edgecolor = None, facecolor = 'bla
 plt.axhline(0, c='white', lw=1)
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
+plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure_c, dt.datetime.today().strftime("%H:%M"))
 plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
 plt.clf()
@@ -117,9 +121,8 @@ plt.cla()
 gc.collect()
 
 g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-axs = g.axes
 for i in range(nclasses) :
-    axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
+    g.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
 mng = plt.get_current_fig_manager()
 mng.set_window_title('Courbe températures nocturnes')
 mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -132,6 +135,7 @@ plt.axhline(0, c='white', lw=1)
 plt.axhline(-2, c='white', lw=1, ls = '--')
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
+plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure, dt.datetime.today().strftime("%H:%M"))
 plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
 plt.clf()
@@ -159,9 +163,8 @@ for i in range(looprange) :
     nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y"))
 
     g = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-    axs = g.axes
     for i in range(nclasses) :
-        axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
+        g.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
     mng = plt.get_current_fig_manager()
     mng.set_window_title('Courbe températures nocturnes')
     mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -173,6 +176,7 @@ for i in range(looprange) :
     plt.axhline(0, c='white', lw=1)
     plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
     plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
+    plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure_c, dt.datetime.today().strftime("%H:%M"))
     plt.pause(0.001)
     plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
     plt.clf()
@@ -180,9 +184,8 @@ for i in range(looprange) :
     gc.collect()
 
     g = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-    axs = g.axes
     for i in range(nclasses) :
-        axs.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
+        g.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
     mng = plt.get_current_fig_manager()
     mng.set_window_title('Courbe températures nocturnes')
     mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
@@ -195,6 +198,7 @@ for i in range(looprange) :
     plt.axhline(-2, c='white', lw=1, ls = '--')
     plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
     plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
+    plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure, dt.datetime.today().strftime("%H:%M"))
     plt.pause(0.001)
     plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
     plt.clf()
