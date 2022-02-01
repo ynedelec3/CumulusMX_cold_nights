@@ -33,7 +33,7 @@ seuilb = -7.
 pos_heure = 20.
 pos_heure_c = 35.
 
-looprange = 330
+looprange = 390
 
 sleep1 = 180.
 #sleep1 = 5.
@@ -53,6 +53,7 @@ df_dec = pd.read_csv('C:\\CumulusMX\\data\\déc21log.txt', sep = ';', header=Non
 #df_dec = pd.read_csv('C:\\CumulusMX\\data\\déc20log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 df_jan = pd.read_csv('C:\\CumulusMX\\data\\janv22log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_jan = pd.read_csv('C:\\CumulusMX\\data\\janv21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+df_fev = pd.read_csv('C:\\CumulusMX\\data\\févr22log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_fev = pd.read_csv('C:\\CumulusMX\\data\\févr21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_mar = pd.read_csv('C:\\CumulusMX\\data\\mars21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
 #df_avr = pd.read_csv('C:\\CumulusMX\\data\\avr21log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
@@ -76,8 +77,8 @@ sns.set_style("darkgrid", {"grid.color": "0.2", "axes.facecolor": ".9", "axes.fa
 
 pd.set_option('mode.chained_assignment', None)
 
-df_act = pd.read_csv("C:\\CumulusMX\\data\\janv22log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
-df = pd.concat([df_oct, df_nov, df_dec, df_act], ignore_index=True)
+df_act = pd.read_csv("C:\\CumulusMX\\data\\févr22log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+df = pd.concat([df_oct, df_nov, df_dec, df_jan, df_act], ignore_index=True)
 #df = pd.concat([df_nov, df_dec, df_jan, df_fev, df_mar, df_avr, df_act])
 df.drop(np.arange(3, 28), axis = 1, inplace = True)
 df['t'] = df[0] + ' ' + df[1]
@@ -87,7 +88,7 @@ df['date'] = df['t'].apply(lambda x : dt.datetime.strftime(x, '%d/%m/%y'))
 df['heure'] = df['t'].apply(lambda x : dt.datetime.combine(dt.date(1900, 1, 1), x.time()) + dt.timedelta(hours=18, minutes=0, seconds=0))
 df.rename(columns={2 : 'temp'}, inplace = True)
 df['temp'] = df['temp'].apply(lambda x : float(x.replace(',', '.')))
-df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 10:00', '%d/%m/%Y %H:%M'))]
+df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 12:00', '%d/%m/%Y %H:%M'))]
 df['cumul'] = [min(x, 0) for x in df.temp]
 df['cumul'] = df['cumul'].cumsum()
 
@@ -106,7 +107,7 @@ mng = plt.get_current_fig_manager()
 mng.set_window_title('Courbe températures nocturnes')
 mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
 mng.window.state('iconic')
-xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
+xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00'), pd.Timestamp('01/02/1900 12:00')]
 g.set_xticks(xlabels)
 g.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
 plt.legend(bbox_to_anchor=(0.05, 0.7), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 2)
@@ -127,7 +128,7 @@ mng = plt.get_current_fig_manager()
 mng.set_window_title('Courbe températures nocturnes')
 mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
 mng.window.state('iconic')
-xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
+#xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
 g.set_xticks(xlabels)
 g.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
 plt.legend(bbox_to_anchor=(0.394, 1.), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 4)
@@ -144,9 +145,9 @@ gc.collect()
 
 for i in range(looprange) :
     time.sleep(sleep1)
-    df_act = pd.read_csv("C:\\CumulusMX\\data\\janv22log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
+    df_act = pd.read_csv("C:\\CumulusMX\\data\\févr22log.txt", sep = ';', header=None, index_col=False, names = np.arange(0, 28))
     #df = pd.concat([df_nov, df_dec,df_jan, df_fev, df_mar, df_avr, df_act])
-    df = pd.concat([df_oct, df_nov, df_dec, df_act], ignore_index=True)
+    df = pd.concat([df_oct, df_nov, df_dec, df_jan, df_act], ignore_index=True)
     df.drop(np.arange(3, 28), axis = 1, inplace = True)
     df['t'] = df[0] + ' ' + df[1]
     df['t'] = df['t'].apply(lambda x : dt.datetime.strptime(x, '%d/%m/%y %H:%M') - dt.timedelta(hours=18, minutes=0, seconds=0))
@@ -155,7 +156,7 @@ for i in range(looprange) :
     df['heure'] = df['t'].apply(lambda x : dt.datetime.combine(dt.date(1900, 1, 1), x.time()) + dt.timedelta(hours=18, minutes=0, seconds=0))
     df.rename(columns={2 : 'temp'}, inplace = True)
     df['temp'] = df['temp'].apply(lambda x : float(x.replace(',', '.')))
-    df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 10:00', '%d/%m/%Y %H:%M'))]
+    df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 12:00', '%d/%m/%Y %H:%M'))]
     df['cumul'] = [min(x, 0) for x in df.temp]
     df['cumul'] = df['cumul'].cumsum()
     for name, group in df.groupby('date'): 
@@ -169,7 +170,7 @@ for i in range(looprange) :
     mng.set_window_title('Courbe températures nocturnes')
     mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
     mng.window.state('iconic')
-    xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
+    #xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
     g.set_xticks(xlabels)
     g.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
     plt.legend(bbox_to_anchor=(0.05, 0.7), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 2)
@@ -190,7 +191,7 @@ for i in range(looprange) :
     mng.set_window_title('Courbe températures nocturnes')
     mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
     mng.window.state('iconic')
-    xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
+    #xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
     g.set_xticks(xlabels)
     g.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
     plt.legend(bbox_to_anchor=(0.394, 1.), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 4)
