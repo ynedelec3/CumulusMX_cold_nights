@@ -56,7 +56,7 @@ pref_month = ['oct', 'nov', 'déc', 'janv', 'févr', 'mar', 'avr']
 month_dataframe = ['df_oct', 'df_nov', 'df_dec', 'df_jan', 'df_fev', 'df_mar', 'df_avr']
 
 i = 0
-while i  <= count_month :
+while i  < count_month :
     globals()[month_dataframe[i]] = pd.read_csv('C:\\CumulusMX\\data\\' + pref_month[i] + str(working_year + offset_month[i]) + 'log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
     i += 1
 
@@ -155,6 +155,7 @@ while j  < count_month :
 
 
 for i in range(looprange) :
+    globals()[month_dataframe[count_month]] = pd.read_csv('C:\\CumulusMX\\data\\' + pref_month[count_month] + str(working_year + offset_month[count_month]) + 'log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
     df = pd.concat([df0, globals()[month_dataframe[count_month]]], ignore_index=True)
     df.drop(np.arange(3, 28), axis = 1, inplace = True)
     df['t'] = df[0] + ' ' + df[1]
