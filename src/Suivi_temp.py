@@ -23,7 +23,7 @@ register_matplotlib_converters()
 
 import seaborn as sns
 
-autostop = 15.
+autostop = 20.
 df_stop = pd.read_csv("C:\\CumulusMX\\web\\realtimewikiT.txttmp", sep = ';', index_col=False)
 if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
     sys.exit()
@@ -52,7 +52,7 @@ working_year = int((dt.date.today() + relativedelta(months=3)).strftime('%y')) -
 num_month = [10, 11, 12, 1, 2, 3, 4]
 offset_month = [0, 0, 0, 1, 1, 1, 1]
 count_month = num_month.index(current_month)
-pref_month = ['oct', 'nov', 'déc', 'janv', 'févr', 'mar', 'avr']
+pref_month = ['oct', 'nov', 'déc', 'janv', 'févr', 'mars', 'avr']
 month_dataframe = ['df_oct', 'df_nov', 'df_dec', 'df_jan', 'df_fev', 'df_mar', 'df_avr']
 
 i = 0
