@@ -35,7 +35,7 @@ df_stop = pd.read_csv("C:\\CumulusMX\\web\\realtimewikiT.txttmp", sep = ';', ind
 if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
     sys.exit()
 
-seuilh = 0.5
+seuilh = 1.
 seuilb = -7.
 
 pos_heure = 20.
@@ -125,7 +125,7 @@ for i in range(looprange) :
     mng.window.state('iconic')
     gcum.set_xticks(xlabels)
     gcum.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
-    plt.legend(bbox_to_anchor=(0.05, 0.7), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 2)
+    plt.legend(bbox_to_anchor=(0.05, 0.7), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 3)
     plt.axhline(0, c='white', lw=1)
     plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
     plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
@@ -145,7 +145,7 @@ for i in range(looprange) :
     mng.window.state('iconic')
     gtemp.set_xticks(xlabels)
     gtemp.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
-    plt.legend(bbox_to_anchor=(0.394, 1.), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 4)
+    plt.legend(bbox_to_anchor=(0.354, 1.), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 5)
     plt.axhline(0, c='white', lw=1)
     plt.axhline(-2, c='white', lw=1, ls = '--')
     plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
