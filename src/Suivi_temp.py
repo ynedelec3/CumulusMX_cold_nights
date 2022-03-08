@@ -85,7 +85,7 @@ sns.set_style("darkgrid", {"grid.color": "0.2", "axes.facecolor": ".9", "axes.fa
 
 pd.set_option('mode.chained_assignment', None)
 
-xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00')]
+xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00'), pd.Timestamp('01/02/1900 12:00')]
     
 df0 = globals()[month_dataframe[0]]
 j = 1
@@ -158,9 +158,7 @@ plt.cla()
 gc.collect()
 time.sleep(sleep1)
 
-print(dt.datetime.now() < dt.datetime.now().replace(hour=12))
-
-while i < looprange and dt.datetime.now() < dt.datetime.now().replace(hour=12) :
+while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12) or dt.datetime.now() >= dt.datetime.now().replace(hour=18)) :
     i += 1
     globals()[month_dataframe[count_month]] = pd.read_csv('C:\\CumulusMX\\data\\' + pref_month[count_month] + str(working_year + offset_month[count_month]) + 'log.txt', sep = ';', header=None, index_col=False, names = np.arange(0, 28))
     df = pd.concat([df0, globals()[month_dataframe[count_month]]], ignore_index=True)
@@ -342,6 +340,26 @@ plt.cla()
 gc.collect()
 time.sleep(sleep2)
 
+gcumtemp = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = couleurs_classest, size = 'date', sizes = sizes_classes, estimator=None)
+for i in classlist :
+    gcumtemp.fill_between(minimaxt[i].index.to_list(), minimaxt[i]['cumul']['min'].to_list(), minimaxt[i]['cumul']['max'].to_list(), color = sns.color_palette(palette, nlabels)[i], alpha=0.3)
+mng = plt.get_current_fig_manager()
+mng.set_window_title('Courbe températures nocturnes')
+mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
+mng.window.state('iconic')
+gcumtemp.set_xticks(xlabels)
+gcumtemp.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
+plt.legend(bbox_to_anchor=(0.05, 0.8), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 4)
+plt.axhline(0, c='white', lw=1)
+plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
+plt.ylim([-1000, 0])
+plt.title('20' + str(working_year) + ' Cumuls - Nuits complètes, coloration par classe de température')
+plt.pause(0.001)
+plt.savefig('C:\\CumulusMX\\webfiles\\images\\class_temp_cumul_' + str(working_year) + '.png')
+plt.clf()
+plt.cla()
+gc.collect()
+
 gtemptemp = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = couleurs_classest, size = 'date', sizes = sizes_classes, estimator=None)
 for i in classlist :
     gtemptemp.fill_between(minimaxt[i].index.to_list(), minimaxt[i]['temp']['min'].to_list(), minimaxt[i]['temp']['max'].to_list(), color = sns.color_palette(palette, nlabels)[i], alpha=0.3)
@@ -363,22 +381,3 @@ plt.cla()
 gc.collect()
 time.sleep(sleep2)
 
-gcumtemp = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = couleurs_classest, size = 'date', sizes = sizes_classes, estimator=None)
-for i in classlist :
-    gcumtemp.fill_between(minimaxt[i].index.to_list(), minimaxt[i]['cumul']['min'].to_list(), minimaxt[i]['cumul']['max'].to_list(), color = sns.color_palette(palette, nlabels)[i], alpha=0.3)
-mng = plt.get_current_fig_manager()
-mng.set_window_title('Courbe températures nocturnes')
-mng.window.wm_iconbitmap("D:\\NedelecDev\\nbpython38\\suivi_temp.ico")
-mng.window.state('iconic')
-gcumtemp.set_xticks(xlabels)
-gcumtemp.set_xticklabels([d.strftime('%H:%M') for d in xlabels])
-plt.legend(bbox_to_anchor=(0.05, 0.8), loc=2, edgecolor = None, facecolor = 'black', fancybox = 0, framealpha = 0, labelcolor='white', ncol = 4)
-plt.axhline(0, c='white', lw=1)
-plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
-plt.ylim([-1000, 0])
-plt.title('20' + str(working_year) + ' Cumuls - Nuits complètes, coloration par classe de température')
-plt.pause(0.001)
-plt.savefig('C:\\CumulusMX\\webfiles\\images\\class_temp_cumul_' + str(working_year) + '.png')
-plt.clf()
-plt.cla()
-gc.collect()
