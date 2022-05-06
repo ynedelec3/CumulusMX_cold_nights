@@ -30,7 +30,7 @@ from tslearn.clustering import TimeSeriesKMeans
 from tslearn.metrics import dtw
 
 
-autostop = 20.
+autostop = 12.
 df_stop = pd.read_csv("C:\\CumulusMX\\web\\realtimewikiT.txttmp", sep = ';', index_col=False)
 if (float(df_stop.temp[0].replace(',', '.')) > autostop) :
     sys.exit()
