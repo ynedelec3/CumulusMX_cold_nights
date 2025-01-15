@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "D:\\NedelecDev\\32bits\\python38\\python.exe"
+    "python.pythonPath": "D:\\NedelecDev\\32bits\\python38\\python.exe",
+    "julia.environmentPath": "d:\\NedelecDev\\git_local\\CumulusMX_cold_nights"
 }
