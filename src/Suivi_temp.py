@@ -10,6 +10,8 @@ import sys
 import gc
 
 import pandas as pd # type: ignore
+pd.set_option('future.no_silent_downcasting', True)
+pd.set_option('mode.chained_assignment', None)
 import numpy as np # type: ignore
 
 import datetime as dt
@@ -31,8 +33,6 @@ from tslearn.metrics import dtw # type: ignore
 
 
 autostop = 10.
-trace_mmc = "cur"
-#trace_mmc = "prev"
 
 df_stop = pd.read_csv("C:\\CumulusMX\\realtime.txt", sep = ' ', header=None, usecols =[2], names = ['temp'])
 #print(float(df_stop.temp[0]))
@@ -60,8 +60,11 @@ palette = "Set1"
 #print(sns.color_palette(palette, nclasses))
 
 current_month = int(dt.date.today().strftime('%m'))
-#current_year = int(dt.date.today().strftime('%y'))
+#working_year = 21
 working_year = int((dt.date.today() + relativedelta(months=3)).strftime('%y')) - 1
+#trace_mmc = 25
+trace_mmc = 21
+
 
 newlog = 0
 pref_month = ['oct', 'nov', 'déc', 'janv', 'févr', 'mars', 'avr', 'mai']
@@ -106,34 +109,21 @@ while i  < count_month :
 mmc = []
 min_classe = []
 #mmt = []
-if trace_mmc == "cur":
-    for i in range(nclasses) :
-        dfmmc = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmc' + str(working_year) + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
-        min_classe.append(dfmmc['cmin'].min())
-        mmc.append(dfmmc)
-        #dfmmt = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
-        #mmt.append(dfmmt)
-    rang_classe = [0] * len(min_classe)
-    for i, x in enumerate(sorted(range(len(min_classe)), key=lambda y: min_classe[y])):
-        rang_classe[x] = i
+for i in range(nclasses) :
+    dfmmc = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmc' + str(trace_mmc) + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
+    min_classe.append(dfmmc['cmin'].min())
+    mmc.append(dfmmc)
+    #dfmmt = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
+    #mmt.append(dfmmt)
+rang_classe = [0] * len(min_classe)
+for i, x in enumerate(sorted(range(len(min_classe)), key=lambda y: min_classe[y])):
+    rang_classe[x] = i
 
-if trace_mmc == "prev":
-    for i in range(nclasses) :
-        dfmmc = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmc' + str(working_year - 1) + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
-        min_classe.append(dfmmc['cmin'].min())
-        mmc.append(dfmmc)
-        #dfmmt = pd.read_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(i) + '.csv', sep = ';', header = None, names = ['t', 'tmin', 'tmax', 'cmin', 'cmax'], parse_dates = ['t'])
-        #mmt.append(dfmmt)
-    rang_classe = [0] * len(min_classe)
-    for i, x in enumerate(sorted(range(len(min_classe)), key=lambda y: min_classe[y])):
-        rang_classe[x] = i
 
-sns.set(rc={'figure.figsize':(20., 12.)})
+sns.set_theme(rc={'figure.figsize':(20., 12.)})
 sns.set_style("darkgrid", {"grid.color": "0.2", "axes.facecolor": ".9", "axes.facecolor": "0.", "figure.facecolor": "white"})
 
-pd.set_option('mode.chained_assignment', None)
-
-xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00'), pd.Timestamp('01/02/1900 12:00')]
+xlabels = [pd.Timestamp('01/01/1900 18:00'), pd.Timestamp('01/01/1900 20:00'), pd.Timestamp('01/01/1900 22:00'), pd.Timestamp('01/02/1900 00:00'), pd.Timestamp('01/02/1900 02:00'), pd.Timestamp('01/02/1900 04:00'), pd.Timestamp('01/02/1900 06:00'), pd.Timestamp('01/02/1900 08:00'), pd.Timestamp('01/02/1900 10:00'), pd.Timestamp('01/02/1900 12:00'), pd.Timestamp('01/02/1900 14:00')]
     
 df0 = globals()[month_dataframe[0]]
 j = 1
@@ -169,19 +159,22 @@ df['date'] = df['t'].apply(lambda x : dt.datetime.strftime(x, '%d/%m/%y'))
 df['heure'] = df['t'].apply(lambda x : dt.datetime.combine(dt.date(1900, 1, 1), x.time()) + dt.timedelta(hours=18, minutes=0, seconds=0))
 df.rename(columns={2 : 'temp'}, inplace = True)
 #df['temp'] = df['temp'].apply(lambda x : float(x.replace(',', '.')))
-df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 12:00', '%d/%m/%Y %H:%M'))]
+df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 14:00', '%d/%m/%Y %H:%M'))]
 df['cumul'] = [min(x, 0) for x in df.temp]
 df['cumul'] = df['cumul'].cumsum()
 for name, group in df.groupby('date'): 
     df.loc[df['date'] == name, ['cumul']] = df.loc[df['date'] == name, ['cumul']] - float(group.head(1).cumul)
 nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y"))
-
+nuits['deltas'] = nuits['temp'].diff().fillna(0).abs()
+errors = nuits.loc[(nuits['deltas'] > 2) & (nuits['heure'] != pd.Timestamp('1900-01-01 18:00:00'))]['date'].drop_duplicates().to_list()
+nuits = nuits[~nuits['date'].isin(errors)]
+# xxx
 ndate = nuits.groupby(by=['date']).ngroups
 chron_palette = sns.mpl_palette("viridis", n_colors = ndate - 1)
 chron_palette.append((1., 0.5, 0.05))
 
 gcum = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-if trace_mmc == "cur" or trace_mmc == "prev" :
+if trace_mmc != 0 :
     for i in range(nclasses) :
         gcum.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
 mng = plt.get_current_fig_manager()
@@ -196,6 +189,7 @@ plt.axhline(0, c='white', lw=1)
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
 plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure_c, dt.datetime.today().strftime("%H:%M"))
+plt.title('Suivi cumuls 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
 plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
 plt.clf()
@@ -203,7 +197,7 @@ plt.cla()
 gc.collect()
 
 gtemp = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-if trace_mmc == "cur" or trace_mmc == "prev" :
+if trace_mmc != 0 :
     for i in range(nclasses) :
         gtemp.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
 mng = plt.get_current_fig_manager()
@@ -218,6 +212,7 @@ plt.axhline(-2, c='white', lw=1, ls = '--')
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
 plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure, dt.datetime.today().strftime("%H:%M"))
+plt.title('Suivi températures 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
 plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
 plt.clf()
@@ -262,19 +257,22 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         df['heure'] = df['t'].apply(lambda x : dt.datetime.combine(dt.date(1900, 1, 1), x.time()) + dt.timedelta(hours=18, minutes=0, seconds=0))
         df.rename(columns={2 : 'temp'}, inplace = True)
         #df['temp'] = df['temp'].apply(lambda x : float(x.replace(',', '.')))
-        df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 12:00', '%d/%m/%Y %H:%M'))]
+        df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 14:00', '%d/%m/%Y %H:%M'))]
         df['cumul'] = [min(x, 0) for x in df.temp]
         df['cumul'] = df['cumul'].cumsum()
         for name, group in df.groupby('date'): 
             df.loc[df['date'] == name, ['cumul']] = df.loc[df['date'] == name, ['cumul']] - float(group.head(1).cumul)
         nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y"))
-        
+        nuits['deltas'] = nuits['temp'].diff().fillna(0).abs()
+        errors = nuits.loc[(nuits['deltas'] > 2) & (nuits['heure'] != pd.Timestamp('1900-01-01 18:00:00'))]['date'].drop_duplicates().to_list()
+        nuits = nuits[~nuits['date'].isin(errors)]
+        # xxx
         ndate = nuits.groupby(by=['date']).ngroups
         chron_palette = sns.mpl_palette("viridis", n_colors = ndate - 1)
         chron_palette.append((1., 0.5, 0.05))
 
         gcum = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-        if trace_mmc == "cur" or trace_mmc == "prev" :
+        if trace_mmc != 0 :
             for i in range(nclasses) :
                 gcum.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
         mng = plt.get_current_fig_manager()
@@ -289,6 +287,7 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
         plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
         plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure_c, dt.datetime.today().strftime("%H:%M"))
+        plt.title('Suivi cumuls 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
         plt.pause(plt_pause1)
         plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
         plt.clf()
@@ -296,7 +295,7 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         gc.collect()
 
         gtemp = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-        if trace_mmc == "cur" or trace_mmc == "prev" :
+        if trace_mmc != 0 :
             for i in range(nclasses) :
                 gtemp.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
         mng = plt.get_current_fig_manager()
@@ -311,6 +310,7 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
         plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
         plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure, dt.datetime.today().strftime("%H:%M"))
+        plt.title('Suivi températures 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
         plt.pause(plt_pause1)
         plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
         plt.clf()
@@ -352,19 +352,22 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         df['heure'] = df['t'].apply(lambda x : dt.datetime.combine(dt.date(1900, 1, 1), x.time()) + dt.timedelta(hours=18, minutes=0, seconds=0))
         df.rename(columns={2 : 'temp'}, inplace = True)
         #df['temp'] = df['temp'].apply(lambda x : float(x.replace(',', '.')))
-        df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 12:00', '%d/%m/%Y %H:%M'))]
+        df = df.loc[(df['heure'] <= dt.datetime.strptime('02/01/1900 14:00', '%d/%m/%Y %H:%M'))]
         df['cumul'] = [min(x, 0) for x in df.temp]
         df['cumul'] = df['cumul'].cumsum()
         for name, group in df.groupby('date'): 
             df.loc[df['date'] == name, ['cumul']] = df.loc[df['date'] == name, ['cumul']] - float(group.head(1).cumul)
         nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y"))
-        
+        nuits['deltas'] = nuits['temp'].diff().fillna(0).abs()
+        errors = nuits.loc[(nuits['deltas'] > 2) & (nuits['heure'] != pd.Timestamp('1900-01-01 18:00:00'))]['date'].drop_duplicates().to_list()
+        nuits = nuits[~nuits['date'].isin(errors)]
+        # xxx
         ndate = nuits.groupby(by=['date']).ngroups
         chron_palette = sns.mpl_palette("viridis", n_colors = ndate - 1)
         chron_palette.append((1., 0.5, 0.05))
 
         gcum = sns.lineplot(x = 'heure', y = 'cumul', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-        if trace_mmc == "cur" or trace_mmc == "prev" :
+        if trace_mmc != 0 :
             for i in range(nclasses) :
                 gcum.fill_between(mmc[i]['t'].to_list(), mmc[i]['cmin'].to_list(), mmc[i]['cmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
         mng = plt.get_current_fig_manager()
@@ -379,6 +382,7 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
         plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
         plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure_c, dt.datetime.today().strftime("%H:%M"))
+        plt.title('Suivi cumuls 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
         plt.pause(plt_pause1)
         plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
         plt.clf()
@@ -386,7 +390,7 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         gc.collect()
 
         gtemp = sns.lineplot(x = 'heure', y = 'temp', data = nuits, hue = 'date', palette = chron_palette, estimator=None)
-        if trace_mmc == "cur" or trace_mmc == "prev" :
+        if trace_mmc != 0 :
             for i in range(nclasses) :
                 gtemp.fill_between(mmc[i]['t'].to_list(), mmc[i]['tmin'].to_list(), mmc[i]['tmax'].to_list(), linewidth = nclasses - rang_classe[i], color = sns.color_palette(palette, nclasses)[rang_classe[i]], alpha=0.2)
         mng = plt.get_current_fig_manager()
@@ -401,6 +405,7 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
         plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
         plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure, dt.datetime.today().strftime("%H:%M"))
+        plt.title('Suivi températures 20' + str(working_year) + ' Classes de températures par cumul pour 20' + str(trace_mmc))
         plt.pause(plt_pause1)
         plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
         plt.clf()
