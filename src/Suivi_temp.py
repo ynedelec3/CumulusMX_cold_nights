@@ -657,4 +657,4 @@ plt.cla()
 gc.collect()
 time.sleep(sleep2)
 
-print(last_vals.head(-10))
+#print(last_vals.head(-10))
