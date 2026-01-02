@@ -168,6 +168,15 @@ nuits = df.groupby(by=['date']).filter(lambda x: (x['temp'].min() < seuilh and x
 nuits['deltas'] = nuits['temp'].diff().fillna(0).abs()
 errors = nuits.loc[(nuits['deltas'] > 2) & (nuits['heure'] != pd.Timestamp('1900-01-01 18:00:00'))]['date'].drop_duplicates().to_list()
 nuits = nuits[~nuits['date'].isin(errors)]
+first_vals = nuits.loc[nuits.groupby('date').heure.idxmin()].reset_index(drop=False)
+first_vals['date'] = pd.to_datetime(first_vals['date'], format='%d/%m/%y')
+first_vals.sort_values(by = 'date', inplace = True)
+last_vals = nuits.loc[nuits.groupby('date').heure.idxmax()].reset_index(drop=False)
+last_vals['date'] = pd.to_datetime(first_vals['date'], format='%d/%m/%y')
+last_vals.sort_values(by = 'date', inplace = True)
+mask = (last_vals['heure'] > pd.Timestamp('01/02/1900 00:00'))
+z_valid = last_vals[mask]
+last_vals.loc[mask, 'date'] = z_valid['date'] + dt.timedelta(days = 1)
 # xxx
 ndate = nuits.groupby(by=['date']).ngroups
 chron_palette = sns.mpl_palette("viridis", n_colors = ndate - 1)
@@ -189,6 +198,13 @@ plt.axhline(0, c='white', lw=1)
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
 plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure_c, dt.datetime.today().strftime("%H:%M"))
+for x, y, z, c in zip(last_vals['heure'], last_vals['cumul'], last_vals['date'], chron_palette):
+    # the position of the data label relative to the data point can be adjusted by adding/subtracting a value from the x &/ y coordinates
+    plt.text(x = x + dt.timedelta(hours = 0.1), # x-coordinate position of data label
+    y = y - 0.012, # y-coordinate position of data label, adjusted to be 150 below the data point
+    s = z.strftime("%d/%m/%y"), # data label, formatted as string
+    color = c, # set colour of line
+    fontsize = 8)
 plt.title('Suivi cumuls 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
 plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
@@ -212,6 +228,20 @@ plt.axhline(-2, c='white', lw=1, ls = '--')
 plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
 plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
 plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure, dt.datetime.today().strftime("%H:%M"))
+for x, y, z, c in zip(first_vals['heure'], first_vals['temp'], first_vals['date'], chron_palette):
+    # the position of the data label relative to the data point can be adjusted by adding/subtracting a value from the x &/ y coordinates
+    plt.text(x = x - dt.timedelta(hours = 0.9), # x-coordinate position of data label
+    y = y - 0.012, # y-coordinate position of data label, adjusted to be 150 below the data point
+    s = z.strftime("%d/%m/%y"), # data label, formatted as string,
+    color = c, # set colour of line
+    fontsize = 8)
+for x, y, z, c in zip(last_vals['heure'], last_vals['temp'], last_vals['date'], chron_palette):
+    # the position of the data label relative to the data point can be adjusted by adding/subtracting a value from the x &/ y coordinates
+    plt.text(x = x + dt.timedelta(hours = 0.1), # x-coordinate position of data label
+    y = y - 0.012, # y-coordinate position of data label, adjusted to be 150 below the data point
+    s = z.strftime("%d/%m/%y"), # data label, formatted as string
+    color = c, # set colour of line
+    fontsize = 8)
 plt.title('Suivi températures 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
 plt.pause(plt_pause1)
 plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
@@ -266,6 +296,15 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         nuits['deltas'] = nuits['temp'].diff().fillna(0).abs()
         errors = nuits.loc[(nuits['deltas'] > 2) & (nuits['heure'] != pd.Timestamp('1900-01-01 18:00:00'))]['date'].drop_duplicates().to_list()
         nuits = nuits[~nuits['date'].isin(errors)]
+        first_vals = nuits.loc[nuits.groupby('date').heure.idxmin()].reset_index(drop=False)
+        first_vals['date'] = pd.to_datetime(first_vals['date'], format='%d/%m/%y')
+        first_vals.sort_values(by = 'date', inplace = True)
+        last_vals = nuits.loc[nuits.groupby('date').heure.idxmax()].reset_index(drop=False)
+        last_vals['date'] = pd.to_datetime(first_vals['date'], format='%d/%m/%y')
+        last_vals.sort_values(by = 'date', inplace = True)
+        mask = (last_vals['heure'] > pd.Timestamp('01/02/1900 00:00'))
+        z_valid = last_vals[mask]
+        last_vals.loc[mask, 'date'] = z_valid['date'] + dt.timedelta(days = 1)
         # xxx
         ndate = nuits.groupby(by=['date']).ngroups
         chron_palette = sns.mpl_palette("viridis", n_colors = ndate - 1)
@@ -287,6 +326,13 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
         plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
         plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure_c, dt.datetime.today().strftime("%H:%M"))
+        for x, y, z, c in zip(last_vals['heure'], last_vals['cumul'], last_vals['date'], chron_palette):
+            # the position of the data label relative to the data point can be adjusted by adding/subtracting a value from the x &/ y coordinates
+            plt.text(x = x + dt.timedelta(hours = 0.1), # x-coordinate position of data label
+            y = y - 0.012, # y-coordinate position of data label, adjusted to be 150 below the data point
+            s = z.strftime("%d/%m/%y"), # data label, formatted as string
+            color = c, # set colour of line
+            fontsize = 8)
         plt.title('Suivi cumuls 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
         plt.pause(plt_pause1)
         plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
@@ -310,6 +356,20 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
         plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
         plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure, dt.datetime.today().strftime("%H:%M"))
+        for x, y, z, c in zip(first_vals['heure'], first_vals['temp'], first_vals['date'], chron_palette):
+            # the position of the data label relative to the data point can be adjusted by adding/subtracting a value from the x &/ y coordinates
+            plt.text(x = x - dt.timedelta(hours = 0.9), # x-coordinate position of data label
+            y = y - 0.012, # y-coordinate position of data label, adjusted to be 150 below the data point
+            s = z.strftime("%d/%m/%y"), # data label, formatted as string,
+            color = c, # set colour of line
+            fontsize = 8)
+        for x, y, z, c in zip(last_vals['heure'], last_vals['temp'], last_vals['date'], chron_palette):
+            # the position of the data label relative to the data point can be adjusted by adding/subtracting a value from the x &/ y coordinates
+            plt.text(x = x + dt.timedelta(hours = 0.1), # x-coordinate position of data label
+            y = y - 0.012, # y-coordinate position of data label, adjusted to be 150 below the data point
+            s = z.strftime("%d/%m/%y"), # data label, formatted as string
+            color = c, # set colour of line
+            fontsize = 8)
         plt.title('Suivi températures 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
         plt.pause(plt_pause1)
         plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
@@ -361,6 +421,15 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         nuits['deltas'] = nuits['temp'].diff().fillna(0).abs()
         errors = nuits.loc[(nuits['deltas'] > 2) & (nuits['heure'] != pd.Timestamp('1900-01-01 18:00:00'))]['date'].drop_duplicates().to_list()
         nuits = nuits[~nuits['date'].isin(errors)]
+        first_vals = nuits.loc[nuits.groupby('date').heure.idxmin()].reset_index(drop=False)
+        first_vals['date'] = pd.to_datetime(first_vals['date'], format='%d/%m/%y')
+        first_vals.sort_values(by = 'date', inplace = True)
+        last_vals = nuits.loc[nuits.groupby('date').heure.idxmax()].reset_index(drop=False)
+        last_vals['date'] = pd.to_datetime(first_vals['date'], format='%d/%m/%y')
+        last_vals.sort_values(by = 'date', inplace = True)
+        mask = (last_vals['heure'] > pd.Timestamp('01/02/1900 00:00'))
+        z_valid = last_vals[mask]
+        last_vals.loc[mask, 'date'] = z_valid['date'] + dt.timedelta(days = 1)
         # xxx
         ndate = nuits.groupby(by=['date']).ngroups
         chron_palette = sns.mpl_palette("viridis", n_colors = ndate - 1)
@@ -382,6 +451,13 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
         plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
         plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure_c, dt.datetime.today().strftime("%H:%M"))
+        for x, y, z, c in zip(last_vals['heure'], last_vals['cumul'], last_vals['date'], chron_palette):
+            # the position of the data label relative to the data point can be adjusted by adding/subtracting a value from the x &/ y coordinates
+            plt.text(x = x + dt.timedelta(hours = 0.1), # x-coordinate position of data label
+            y = y - 0.012, # y-coordinate position of data label, adjusted to be 150 below the data point
+            s = z.strftime("%d/%m/%y"), # data label, formatted as string
+            color = c, # set colour of line
+            fontsize = 8)
         plt.title('Suivi cumuls 20' + str(working_year) + ' Classes de cumuls par cumul pour 20' + str(trace_mmc))
         plt.pause(plt_pause1)
         plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp_cumul.png')
@@ -405,6 +481,20 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
         plt.axvline(pd.Timestamp('01/02/1900 00:00'), c='white', lw=1)
         plt.axvline(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), c='grey', lw=1, ls = '--')
         plt.text(dt.datetime.strptime('01/01/1900 ' + (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%H:%M"), '%d/%m/%Y %H:%M') + dt.timedelta(hours=18, minutes=0, seconds=0), pos_heure, dt.datetime.today().strftime("%H:%M"))
+        for x, y, z, c in zip(first_vals['heure'], first_vals['temp'], first_vals['date'], chron_palette):
+            # the position of the data label relative to the data point can be adjusted by adding/subtracting a value from the x &/ y coordinates
+            plt.text(x = x - dt.timedelta(hours = 0.9), # x-coordinate position of data label
+            y = y - 0.012, # y-coordinate position of data label, adjusted to be 150 below the data point
+            s = z.strftime("%d/%m/%y"), # data label, formatted as string,
+            color = c, # set colour of line
+            fontsize = 8)
+        for x, y, z, c in zip(last_vals['heure'], last_vals['temp'], last_vals['date'], chron_palette):
+            # the position of the data label relative to the data point can be adjusted by adding/subtracting a value from the x &/ y coordinates
+            plt.text(x = x + dt.timedelta(hours = 0.1), # x-coordinate position of data label
+            y = y - 0.012, # y-coordinate position of data label, adjusted to be 150 below the data point
+            s = z.strftime("%d/%m/%y"), # data label, formatted as string
+            color = c, # set colour of line
+            fontsize = 8)
         plt.title('Suivi températures 20' + str(working_year) + ' Classes de températures par cumul pour 20' + str(trace_mmc))
         plt.pause(plt_pause1)
         plt.savefig('C:\\CumulusMX\\webfiles\\images\\suivi_temp.png')
@@ -567,3 +657,4 @@ plt.cla()
 gc.collect()
 time.sleep(sleep2)
 
+print(last_vals.head(-10))
