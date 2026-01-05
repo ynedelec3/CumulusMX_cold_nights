@@ -40,7 +40,7 @@ if (float(df_stop.temp[0]) > autostop) :
     sys.exit()
 
 seuilh = 1.
-seuilb = -7.
+seuilb = -12.
 
 pos_heure = 20.
 pos_heure_c = 35.
@@ -758,5 +758,5 @@ time.sleep(sleep2)
 #     #nuits3['heure'] = nuits3['heure2']
 #     #nuits3 = nuits3.sort_values(['date', 'heure'])
 #     print(nuits.loc[nuits['date'] == '01/01/26'])
-    #print(df.loc[df['date'] == '03/11/25'])
+    #print(df.loc[df['date'] == '04/01/26'])
     #print(nuits.loc[nuits['date'] == '03/11/25'])
