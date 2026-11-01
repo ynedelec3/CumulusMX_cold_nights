@@ -32,7 +32,7 @@ from tslearn.metrics import dtw # type: ignore
 
 # Execution settings
 
-autostop = 10.
+autostop = 20. # Program stops if current temperature is above this limit
 df_stop = pd.read_csv("C:\\CumulusMX\\realtime.txt", sep = ' ', header=None, usecols =[2], names = ['temp'])
 #print(float(df_stop.temp[0]))
 if (float(df_stop.temp[0]) > autostop) :
@@ -67,14 +67,14 @@ def series_labelling(): # Function used to set series beginning and ending label
 
 # Time settings
 current_month = int(dt.date.today().strftime('%m'))
-#working_year = 21
+#working_year = 24
 working_year = int((dt.date.today() + relativedelta(months=3)).strftime('%y')) - 1
-#trace_mmc = 25
-trace_mmc = 21
+trace_mmc = 25
+#trace_mmc = 21
 
 # Series selection settings
 seuilh = 1. # High threshold, minimum required
-seuilb = -12. # Low threshold, exclusion of series below
+seuilb = -20. # Low threshold, exclusion of series below
 
 # Classification settings
 nclasses = 5
@@ -82,7 +82,7 @@ palette = "Set1"
 
 # Preparation of data collection
 newlog = 0
-pref_month = ['oct', 'nov', 'déc', 'janv', 'févr', 'mars', 'avr', 'mai']
+pref_month = ['oct', 'nov', 'déc', 'janv', 'févr', 'mars', 'avr', 'mai'] # Nights from june to september are not collected
 if working_year == 24:    
     newlog = 1
     pref_month = ['oct', 'nov', 'déc', '01', '02', '03', '04', '05']
@@ -118,7 +118,14 @@ while i  < count_month :
         logfile = str(2000 + working_year + offset_month[i]) + pref_month[i]
         sep = ','
         dec = '.'
-    globals()[month_dataframe[i]] = pd.read_csv('C:\\CumulusMX\\data\\' + logfile + 'log.txt', sep = sep, decimal = dec, header=None, index_col=False, names = np.arange(0, 30))
+    globals()[month_dataframe[i]] = pd.read_csv('C:\\CumulusMX\\data\\' + logfile + 'log.txt', sep = sep, decimal = dec, header=None, index_col=False, names = np.arange(0, 31)) # New format since version 4, 31 fields instead of 30
+
+    if globals()[month_dataframe[i]].dtypes[1] == 'int64': # Change reading of first two columns since previous change of log format
+        globals()[month_dataframe[i]][1] = globals()[month_dataframe[i]][0]
+        globals()[month_dataframe[i]][0] = globals()[month_dataframe[i]][0].apply(lambda x: x.split(' ')[0])
+        globals()[month_dataframe[i]][1] = globals()[month_dataframe[i]][1].apply(lambda x: x.split(' ')[1])        
+
+
     i += 1
 
 # Processing of data into a single raw dataframe df
@@ -146,10 +153,17 @@ if newlog == 2:
     sep = ','
     dec = '.'
 
-globals()[month_dataframe[count_month]] = pd.read_csv('C:\\CumulusMX\\data\\' + logfile + 'log.txt', sep = sep, decimal = dec, header=None, index_col=False, names = np.arange(0, 30))
+globals()[month_dataframe[count_month]] = pd.read_csv('C:\\CumulusMX\\data\\' + logfile + 'log.txt', sep = sep, decimal = dec, header=None, index_col=False, names = np.arange(0, 31))
+
+if globals()[month_dataframe[count_month]].dtypes[1] == 'int64': # Change reading of first two columns since previous change of log format
+    globals()[month_dataframe[count_month]][1] = globals()[month_dataframe[count_month]][0]
+    globals()[month_dataframe[count_month]][0] = globals()[month_dataframe[count_month]][0].apply(lambda x: x.split(' ')[0])
+    globals()[month_dataframe[count_month]][1] = globals()[month_dataframe[count_month]][1].apply(lambda x: x.split(' ')[1])        
+
 df = pd.concat([df0, globals()[month_dataframe[count_month]]], ignore_index=True)
+print(df)
 df.drop(np.arange(3, 30), axis = 1, inplace = True)
-df['t'] = df[0] + ' ' + df[1]
+df['t'] = df[0].apply(str) + ' ' + df[1].apply(str)
 df['t'] = df['t'].apply(lambda x : dt.datetime.strptime(x, '%d/%m/%y %H:%M') - dt.timedelta(hours=18, minutes=0, seconds=0))
 df.drop([0, 1], axis = 1, inplace = True)
 df['date'] = df['t'].apply(lambda x : dt.datetime.strftime(x, '%d/%m/%y'))
@@ -170,7 +184,6 @@ df['cumul'] = [min(x, 0) for x in df.temp]
 df['cumul'] = df['cumul'].cumsum()
 for name, group in df.groupby('date'): 
     df.loc[df['date'] == name, ['cumul']] = df.loc[df['date'] == name, ['cumul']] - float(group.head(1).cumul.iloc[0])
-
 # Processing of data into dataframe nuits used for graphs
 nuits = df.groupby(by=['date']).filter(lambda x: ((x['temp'].min() < seuilh and x['temp'].min() > seuilb) or x['t'].min().strftime("%d/%m/%Y") == (dt.datetime.today() + dt.timedelta(hours=-18, minutes=0, seconds=0)).strftime("%d/%m/%Y")) and (x['temp'].max() - x['temp'].min()) > 0.0)
 nuits['deltas'] = nuits['temp'].diff().fillna(0).abs()
@@ -268,7 +281,7 @@ else:
     for i in classlistmm :
         dfmmt = nuits.loc[nuits['classet'] == i].sort_values(by = 'heure').groupby(pd.Grouper(key = 'heure')).agg({'temp': ['min', 'max'], 'cumul': ['min', 'max']}).dropna()
         minimaxt.append(dfmmt)
-        dfmmt.to_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(working_year) + str(i) + '.csv', sep = ';', header = None)
+        #dfmmt.to_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(working_year) + str(i) + '.csv', sep = ';', header = None)
     
 
     # Drawing of class graphs
@@ -473,7 +486,7 @@ plt.cla()
 gc.collect()
 time.sleep(sleep1)
 
-i = 0
+i = 0 # xxx
 
 while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12) or dt.datetime.now() >= dt.datetime.now().replace(hour=18)) :
     current_month0 = int(dt.date.today().strftime('%m'))
@@ -498,10 +511,17 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
             sep = ','
             dec = '.'
 
-        globals()[month_dataframe[count_month]] = pd.read_csv('C:\\CumulusMX\\data\\' + logfile + 'log.txt', sep = sep, decimal = dec, header=None, index_col=False, names = np.arange(0, 30))
+        globals()[month_dataframe[count_month]] = pd.read_csv('C:\\CumulusMX\\data\\' + logfile + 'log.txt', sep = sep, decimal = dec, header=None, index_col=False, names = np.arange(0, 31))
+
+        if globals()[month_dataframe[count_month]].dtypes[1] == 'int64': # Change reading of first two columns since previous change of log format
+            globals()[month_dataframe[count_month]][1] = globals()[month_dataframe[count_month]][0]
+            globals()[month_dataframe[count_month]][0] = globals()[month_dataframe[count_month]][0].apply(lambda x: x.split(' ')[0])
+            globals()[month_dataframe[count_month]][1] = globals()[month_dataframe[count_month]][1].apply(lambda x: x.split(' ')[1])        
+
         df = pd.concat([df0, globals()[month_dataframe[count_month]]], ignore_index=True)
+        #print(df)
         df.drop(np.arange(3, 30), axis = 1, inplace = True)
-        df['t'] = df[0] + ' ' + df[1]
+        df['t'] = df[0].apply(str) + ' ' + df[1].apply(str)
         df['t'] = df['t'].apply(lambda x : dt.datetime.strptime(x, '%d/%m/%y %H:%M') - dt.timedelta(hours=18, minutes=0, seconds=0))
         df.drop([0, 1], axis = 1, inplace = True)
         df['date'] = df['t'].apply(lambda x : dt.datetime.strftime(x, '%d/%m/%y'))
@@ -627,10 +647,16 @@ while i < looprange and (dt.datetime.now() <= dt.datetime.now().replace(hour=12)
             sep = ','
             dec = '.'
 
-        globals()[month_dataframe[count_month]] = pd.read_csv('C:\\CumulusMX\\data\\' + logfile + 'log.txt', sep = sep, decimal = dec, header=None, index_col=False, names = np.arange(0, 30))
+        globals()[month_dataframe[count_month]] = pd.read_csv('C:\\CumulusMX\\data\\' + logfile + 'log.txt', sep = sep, decimal = dec, header=None, index_col=False, names = np.arange(0, 31))
+
+        if globals()[month_dataframe[count_month]].dtypes[1] == 'int64': # Change reading of first two columns since previous change of log format
+            globals()[month_dataframe[count_month]][1] = globals()[month_dataframe[count_month]][0]
+            globals()[month_dataframe[count_month]][0] = globals()[month_dataframe[count_month]][0].apply(lambda x: x.split(' ')[0])
+            globals()[month_dataframe[count_month]][1] = globals()[month_dataframe[count_month]][1].apply(lambda x: x.split(' ')[1])        
+
         df = pd.concat([df0, globals()[month_dataframe[count_month]]], ignore_index=True)
         df.drop(np.arange(3, 30), axis = 1, inplace = True)
-        df['t'] = df[0] + ' ' + df[1]
+        df['t'] = df[0].apply(str) + ' ' + df[1].apply(str)
         df['t'] = df['t'].apply(lambda x : dt.datetime.strptime(x, '%d/%m/%y %H:%M') - dt.timedelta(hours=18, minutes=0, seconds=0))
         df.drop([0, 1], axis = 1, inplace = True)
         df['date'] = df['t'].apply(lambda x : dt.datetime.strftime(x, '%d/%m/%y'))
@@ -793,14 +819,14 @@ classlist = range(nclasses)
 minimaxc = []
 for i in classlistmm :
     dfmmc = nuits.loc[nuits['classec'] == i].sort_values(by = 'heure').groupby(pd.Grouper(key = 'heure')).agg({'temp': ['min', 'max'], 'cumul': ['min', 'max']}).dropna()
-    #print(dfmmc) # xxx
+    print(dfmmc) # xxx
     minimaxc.append(dfmmc)
     dfmmc.to_csv('C:\\CumulusMX\\webfiles\\images\\mmc' + str(working_year) + str(i) + '.csv', sep = ';', header = None)
 minimaxt = []
 for i in classlistmm :
     dfmmt = nuits.loc[nuits['classet'] == i].sort_values(by = 'heure').groupby(pd.Grouper(key = 'heure')).agg({'temp': ['min', 'max'], 'cumul': ['min', 'max']}).dropna()
     minimaxt.append(dfmmt)
-    dfmmt.to_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(working_year) + str(i) + '.csv', sep = ';', header = None)
+    #dfmmt.to_csv('C:\\CumulusMX\\webfiles\\images\\mmt' + str(working_year) + str(i) + '.csv', sep = ';', header = None)
 
 # Drawing of class graphs
 series_labelling()
